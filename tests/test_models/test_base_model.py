@@ -10,6 +10,7 @@ from datetime import datetime
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 
+
 class TestBaseModel(unittest.TestCase):
     """Test Base Model"""
     @classmethod
@@ -31,8 +32,8 @@ class TestBaseModel(unittest.TestCase):
         new_d = datetime.now()
         self.assertTrue(hasattr(self.basemodel, "created_at"))
         self.assertIsInstance(self.basemodel.created_at, datetime)
-        self.assertNotEqual(self.basemodel.created_at.microsecond,
-                         new_d.microsecond)
+        self.assertNotEqual(
+            self.basemodel.created_at.microsecond, new_d.microsecond)
 
     def test_updated_at(self):
         """Test updated_at"""
@@ -83,14 +84,18 @@ class TestBaseModel(unittest.TestCase):
             BaseModel.save(self, "Reaper")
         m = "save() takes 1 positional argument but 2 were given"
         self.assertEqual(str(e.exception), m)
+
     @classmethod
     def clearStorage(self):
         """Clear File storage"""
         if os.path.exists(FileStorage._FileStorage__file_path):
             os.remove(FileStorage._FileStorage__file_path)
+
     @classmethod
     def tearDownClass(self):
         """Remove set up instance"""
         self.clearStorage()
+
+
 if __name__ == "__main__":
     unittest.main()
