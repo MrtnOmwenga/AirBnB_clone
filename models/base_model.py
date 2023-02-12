@@ -15,7 +15,7 @@ class BaseModel():
         if kwargs:
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
-                    value = datetime.now()
+                    value = datetime.fromisoformat(value)
                 elif key == "__class__":
                     continue
                 if "id" not in kwargs.keys():
