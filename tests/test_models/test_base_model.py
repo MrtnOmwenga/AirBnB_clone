@@ -3,10 +3,12 @@
 Test Base model class
 """
 
+import json
 import unittest
+import os
 from datetime import datetime
 from models.base_model import BaseModel
-
+from models.engine.file_storage import FileStorage
 
 class TestBaseModel(unittest.TestCase):
     """Test Base Model"""
@@ -54,9 +56,41 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(d["friends"], self.basemodel.friends)
         self.assertEqual(d["__class__"], type(self.basemodel).__name__)
 
+    def test_save(self):
+        """Test save() method"""
+        self.basemodel.anime = "86"
+        self.basemodel.real_name = "Shin"
+        self.basemodel.code_name = "Shinigami"
+        self.basemodel.save()
+        key = f"{type(self.basemodel).__name__}.{self.basemodel.id}"
+        d = {key: self.basemodel.to_dict()}
+        self.assertTrue(os.path.exists(
+            FileStorage._FileStorage__file_path))
+        with open(FileStorage._FileStorage__file_path,
+                  mode="r", encoding="utf-8") as f:
+            self.assertEqual(len(f.read()), len(json.dumps(d)))
+
+    def test_save_no_arg(self):
+        """Test save() method with no args"""
+        with self.assertRaises(TypeError) as e:
+            BaseModel.save()
+        m = "save() missing 1 required positional argument: 'self'"
+        self.assertEqual(str(e.exception), m)
+
+    def test_save_many_args(self):
+        """Test save() method with many arguments"""
+        with self.assertRaises(TypeError) as e:
+            BaseModel.save(self, "Reaper")
+        m = "save() takes 1 positional argument but 2 were given"
+        self.assertEqual(str(e.exception), m)
+    @classmethod
+    def clearStorage(self):
+        """Clear File storage"""
+        if os.path.exists(FileStorage._FileStorage__file_path):
+            os.remove(FileStorage._FileStorage__file_path)
     @classmethod
     def tearDownClass(self):
         """Remove set up instance"""
-        pass
+        self.clearStorage()
 if __name__ == "__main__":
     unittest.main()
