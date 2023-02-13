@@ -10,6 +10,8 @@ import sys
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
 from models import storage
+
+
 class HBNBCommand(cmd.Cmd):
     """This class provides entry point for the cmd interpreter"""
     prompt = ("(hbnb) ")
@@ -28,6 +30,7 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """Disable repetition of last command entered"""
         pass
+
     def help_create(self):
         print("Creates a new instance of BaseModel and saves it")
         print()
@@ -43,12 +46,14 @@ class HBNBCommand(cmd.Cmd):
             print(obj.id)
 
     def help_show(self):
-        print("Prints the string represenation of an instance \ based on class name")
+        start = "Prints the string represenation of an instance"
+        end = " based on class name"
+        print(f"{start}{end}")
         print()
 
     def do_show(self, line):
         line = line.split()
-        if len(line) == 0 :
+        if len(line) == 0:
             print("** class name missing **")
         elif line[0] not in FileStorage.classes(self):
             print("** class doesn't exist **")
@@ -67,7 +72,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, line):
         line = line.split()
-        if len(line) == 0 :
+        if len(line) == 0:
             print("** class name missing **")
         elif line[0] not in FileStorage.classes(self):
             print("** class doesn't exist **")
@@ -90,24 +95,25 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
         elif line in FileStorage.classes(self):
             objs = storage.all()
-            l = [str(obj) for id, obj in objs.items()
-                 if type(obj).__name__ == line]
-            print(l)
+            lst = [str(obj) for id,
+                   obj in objs.items() if type(obj).__name__ == line]
+            print(lst)
         elif not line:
-            l = []
+            lst = []
             objs = storage.all()
             for key in objs.keys():
                 obj = str(objs[key])
-                l.append(obj)
-            print(l)
+                lst.append(obj)
+            print(lst)
 
     def help_update(self):
-        print("Updates an instance based on class name and id by updating attribute")
-        print("Usage: update <class name> <id> <attribute name> 'attribute value<>")
+        print("Updates an instance based on class name and id")
+        start = "Usage: update <class name> <id> <attribute name>"
+        end = " 'attribute value<>'"
+        print(f"{start}{end}")
         print()
 
     def do_update(self, line):
-        l = line
         line = line.split()
         if not line:
             print("** class name missing **")
@@ -153,7 +159,7 @@ class HBNBCommand(cmd.Cmd):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        #readline.parse_and_bind("tab: complete")
+        readline.parse_and_bind("tab: complete")
         HBNBCommand().onecmd(' '.join(sys.argv[1:]))
     else:
         HBNBCommand().cmdloop()
