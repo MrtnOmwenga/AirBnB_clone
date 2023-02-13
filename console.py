@@ -129,9 +129,7 @@ class HBNBCommand(cmd.Cmd):
                     obj = objs[obj_id]
                 attr = str(line[2])
                 val = line[3].replace('"', '')
-                low = [chr(c) for c in range(97, 123)]
-                up = [chr(c) for c in range(65, 91)]
-                if val[0] in low or val[0] in up:
+                if re.search(r'\D', val) is not None:
                     val = str(val)
                 else:
                     val_t = re.search(r'^\d{1,}["."]?\d{1,}$', val)
