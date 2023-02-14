@@ -8,7 +8,6 @@ import json
 import re
 import sys
 from models.base_model import BaseModel
-from models.engine.file_storage import FileStorage
 from models import storage
 
 
@@ -38,10 +37,10 @@ class HBNBCommand(cmd.Cmd):
     def do_create(self, line):
         if not line:
             print("** class name missing **")
-        elif line not in FileStorage.classes(self):
+        elif line not in storage.classes():
             print("** class doesn't exist **")
         else:
-            obj = FileStorage.classes(self)[line]()
+            obj = storage.classes()[line]()
             obj.save()
             print(obj.id)
 
@@ -55,7 +54,7 @@ class HBNBCommand(cmd.Cmd):
         line = line.split()
         if len(line) == 0:
             print("** class name missing **")
-        elif line[0] not in FileStorage.classes(self):
+        elif line[0] not in storage.classes():
             print("** class doesn't exist **")
         elif len(line) < 2:
             print("** instance id missing **")
@@ -74,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
         line = line.split()
         if len(line) == 0:
             print("** class name missing **")
-        elif line[0] not in FileStorage.classes(self):
+        elif line[0] not in storage.classes():
             print("** class doesn't exist **")
         elif len(line) < 2:
             print("** instance id missing **")
@@ -91,12 +90,12 @@ class HBNBCommand(cmd.Cmd):
         print()
 
     def do_all(self, line):
-        if line and line not in FileStorage.classes(self):
+        if line and line not in storage.classes():
             print("** class doesn't exist **")
-        elif line in FileStorage.classes(self):
+        elif line in storage.classes():
             objs = storage.all()
-            lst = [str(obj) for id,
-                   obj in objs.items() if type(obj).__name__ == line]
+            lst = [str(obj) for id, obj in objs.items()
+                   if type(obj).__name__ == line]
             print(lst)
         elif not line:
             lst = []
@@ -107,10 +106,12 @@ class HBNBCommand(cmd.Cmd):
             print(lst)
 
     def help_update(self):
-        print("Updates an instance based on class name and id")
-        start = "Usage: update <class name> <id> <attribute name>"
-        end = " 'attribute value<>'"
-        print(f"{start}{end}")
+        start = "Updates an instance based on class name"
+        end = " and id by updating attribute"
+        print(f"{start} {end}")
+        beg = "Usage: update <class name> <id> <attribute name> "
+        en = 'attribute value<>'
+        print(f"{beg}{en}")
         print()
 
     def do_update(self, line):
@@ -138,7 +139,7 @@ class HBNBCommand(cmd.Cmd):
                 if re.search(r'\D', val) is not None:
                     val = str(val)
                 else:
-                    val_t = re.search(r'^\d{1,}["."]?\d{1,}$', val)
+                    val_t = re.search(r'^\d{1,}["."]?\d*$', val)
                     if val_t.group():
                         if "." in val_t.group():
                             val = float(val)
@@ -156,10 +157,57 @@ class HBNBCommand(cmd.Cmd):
                             setattr(obj, attr, val)
                         storage.save()
 
+    def default(self, line):
+        """Catch input if it does not match specific processor command"""
+        command_1 = re.search(r'^\w+\.\w+\(\)$', line)
+        command_2 = re.search(r'^\w+\.\w+\(\".*\"\)$', line)
+        if command_1 is not None and command_2 is None:
+            com = command_1.group().split(".")
+            c_name = com[0]
+            method = com[1][:-2]
+            methods = ["all", "count"]
+            if c_name not in storage.classes():
+                print(f"** class doesn't exist **")
+            elif method not in methods:
+                print(f"** action doesn't exist **")
+            else:
+                objs = storage.all()
+                list_instances = [obj for id, obj in objs.items()
+                                  if obj.to_dict()["__class__"] == c_name]
+                if method == "all":
+                    self.do_all(c_name)
+                elif method == "count":
+                    print(len(list_instances))
+        elif command_2 is not None:
+            com = command_2.group().split(".")
+            c_name = com[0]
+            method = com[1].split("(")[0]
+            methods = ["update", "show", "destroy"]
+            instance_id = com[1].split("(")
+            instance_id = instance_id[1][:-1]
+            if c_name not in storage.classes():
+                print(f"** class doesn't exist **")
+            elif method not in methods:
+                print(f"** action doesn't exist **")
+            else:
+                objs = storage.all()
+                key = c_name + "." + instance_id[1:-1]
+                if instance_id == "":
+                    print("** instance id missing **")
+                elif key not in objs:
+                    print("** no instance found **")
+                else:
+                    if method == "destroy":
+                        del objs[key]
+                        storage.save()
+        else:
+            print(f"*** Uknown syntax: {line}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         readline.parse_and_bind("tab: complete")
+        print(f"tt: {sys.argv[2]}")
         HBNBCommand().onecmd(' '.join(sys.argv[1:]))
     else:
         HBNBCommand().cmdloop()
