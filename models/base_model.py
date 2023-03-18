@@ -32,7 +32,7 @@ class BaseModel():
             storage.new(self)
 
     def __str__(self):
-        return ("[{}] ({}) <{}>".format(type(self).__name__, self.id,
+        return ("[{}] ({}) <{}>".format(self.__class__.__name__, self.id,
                                         self.__dict__))
 
     def save(self):
