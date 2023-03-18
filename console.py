@@ -35,6 +35,7 @@ class HBNBCommand(cmd.Cmd):
         print()
 
     def do_create(self, line):
+        """Creates a new instance of a class"""
         if not line:
             print("** class name missing **")
         elif line not in storage.classes():
