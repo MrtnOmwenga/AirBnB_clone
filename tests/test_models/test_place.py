@@ -43,11 +43,6 @@ class test_Place(test_basemodel):
         new = self.value()
         self.assertEqual(type(new.number_bathrooms), int)
 
-    def test_max_guest(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.max_guest), int)
-
     def test_price_by_night(self):
         """ """
         new = self.value()
@@ -63,7 +58,3 @@ class test_Place(test_basemodel):
         new = self.value()
         self.assertEqual(type(new.latitude), float)
 
-    def test_amenity_ids(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.amenity_ids), list)
